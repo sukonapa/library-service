@@ -32,7 +32,7 @@ public class BookServiceImpl implements BookService {
 		if (bke.isEmpty()) {
 			bookEntity.setCount(bookCount++);
 			bookRepositry.save(bookEntity);
-			return "Book has been placd into librery";
+			return "Book has been registered into librery";
 		} else {
 			// we can change Optional to book but time being I am using Optional
 			int updateStatus = bookRepositry.updateBookCount(bke.get().getCount() + 1, bke.get().getId());
@@ -50,32 +50,44 @@ public class BookServiceImpl implements BookService {
 	}
 
 	@Override
-	public String borrowBook(long borrowerid, long bookId) {
+	public String manageLibraryBook(long borrowerid, long bookId, String type) {
 		// find the valid book and update the count book table
 		Optional<BookEntity> bke = bookRepositry.findById(bookId);
-		if (bke.get().getCount() > 0) {
+		// 
+		if (type.equalsIgnoreCase("checkOutBook") && bke.get().getCount() > 0) {
 			int i = bookRepositry.updateBookCount(bke.get().getCount() - 1, bookId);
 
 			// Update the borrower table with book Id along with flag
-			return updateBorrower(borrowerid, bookId);
+			return updateBorrowerStatus(borrowerid, bookId, type);
+
+		} else if (type.equalsIgnoreCase("checkInBook") && bke.get().getCount() >= 0) {
+
+			int i = bookRepositry.updateBookCount(bke.get().getCount() + 1, bookId);
+
+			return updateBorrowerStatus(borrowerid, bookId, type);
 
 		} else {
-			throw new BookEmptyException("Book is Empty, Please Register the book...!");
+			throw new BookEmptyException(" Please Register the book...!");
+
 		}
 
 	}
 
 	@Override
-	public String updateBorrower(long borrowerId, long bookId) {
+	public String updateBorrowerStatus(long borrowerId, long bookId, String type) {
 
 		Optional<BorrowerEntity> borrowerEntity = borrowerRepositry.findById(borrowerId);
 		if (borrowerEntity.isEmpty()) {
 			throw new BorrowerEmptyException("borrower is Empty, Please Enter Values...!");
+		} else if (type.equals("checkInBook")) {
+			borrowerRepositry.updateBorrower(borrowerId, bookId, "N");
+			return "Borrower return" + bookId + ": to librery";
+
 		} else {
-			// flag = Y mean borrow the book ;
-			borrowerRepositry.updateBorrower(borrowerId, borrowerId, "Y");
+			borrowerRepositry.updateBorrower(borrowerId, bookId, "Y");
+			return "Borrower taken" + bookId + ":new book from librery";
+
 		}
-		return "Borrower taken" + bookId + ":new book from librery";
 	}
 
 	@Override

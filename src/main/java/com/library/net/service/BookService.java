@@ -9,9 +9,9 @@ public interface BookService {
 
 	public String createOrUpdateBook(BookEntity book);
 
-	public String borrowBook(long borrowerId,long bookId);
+	public String manageLibraryBook(long borrowerId,long bookId,String type);
 	
-	public String updateBorrower(long borrowerId,long bookId);
+	public String updateBorrowerStatus(long borrowerId,long bookId,String type);
 
 	public List<BookEntity> findAllBooks();
 

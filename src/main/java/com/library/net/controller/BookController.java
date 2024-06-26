@@ -25,6 +25,7 @@ public class BookController {
 	@Autowired
 	private BookService bookService;
 
+	/* Register the book in a librery */
 	@PostMapping("/register")
 	public String registerBook(@RequestBody BookEntity bookEntity) {
 
@@ -36,23 +37,28 @@ public class BookController {
 
 	}
 
-	
-	  @PutMapping("/borrowBook")
-	  public ResponseEntity<BookEntity> borrowBook(@RequestParam long id,@RequestParam long bookId) {
-	  
-		  bookService.borrowBook(id,bookId);
-		  
-		  return null;
-	  
-	  }
-	 
+	/* borrow Book From libraby */
+	@PutMapping("/borrowBook")
+	public String borrowBook(@RequestParam long borrowerId, @RequestParam long bookId) {
+
+		return bookService.manageLibraryBook(borrowerId, bookId, "checkOutBook");
+
+	}
+
+	// return book to the librery
+	@PutMapping("/returnBook")
+	public String returnBook(@RequestParam long borrowerId, @RequestParam long bookId) {
+
+		return bookService.manageLibraryBook(borrowerId, bookId, "checkInBook");
+
+	}
 
 	@GetMapping("/list")
 	public List<BookEntity> getAllBooks() {
 		List<BookEntity> listOfBooks = bookService.findAllBooks();
-		if(listOfBooks != null && listOfBooks.size()>0) {
+		if (listOfBooks != null && listOfBooks.size() > 0) {
 			return listOfBooks;
-		}else {
+		} else {
 			throw new BooksNotFoundException("No Books Available in The Liberary");
 		}
 	}
